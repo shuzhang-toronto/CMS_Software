@@ -1,6 +1,7 @@
 import csv
 import datetime
-from os import listdir, makedirs
+from time import time
+from os import listdir, makedirs, remove, stat
 from os.path import isfile, join, splitext, exists
 
 def getAllSoftwares():
@@ -54,6 +55,7 @@ def updateUser(id, name, email):
 			with open("config/users.csv", 'w') as csvfile: 
 				writer = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
 				write.writerows(users)
+			lock.close()
 			remove('config/userdilelock')
 			return
 		else:
@@ -135,16 +137,24 @@ def saveAllSoftwares(users, softwares, currentuser):
 		writer = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
 		for s in updated:
 				writer.writerow((s,))
-	
-	new = updated - getAllSoftwares()
+	all = getAllSoftwares()
+	new = updated - all
 	if(len(new) > 0):
-		with open('config/softwares.csv', 'w') as csvfile: 
-			writer = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-			for s in new:
-				writer.writerow((s,))
-	print(new)
-	print(updated - exist)
-	print(exist - updated)
+		while True:
+			if not exists('config/softwarelock'):
+				lock = open('config/softwarelock', 'w')
+				with open('config/softwares.csv', 'w') as csvfile: 
+					writer = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+					for s in new | all:
+						writer.writerow((s,))
+				lock.close()
+				remove('config/softwarelock')
+				break
+			else:
+				check = stat('config/softwarelock')
+				if time() - check.st_ctime > 0.01: 
+					remove('config/softwarelock')
+
 	return (new, updated - exist - new, exist - updated)
 
 def getUsersForSoftware(software):

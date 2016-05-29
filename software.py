@@ -91,9 +91,9 @@ def sendEmail(user, delta):
 	subject = "CMS software change request"
 	msg = "UserId: " + user + "\r\n"
 	if delta[1]:
-		msg += 'select ' + ';'.join(delta[1])
+		msg += 'deselect ' + ';'.join(delta[1])
 	if delta[2]:
-		msg += 'unselect ' + ';'.join(delta[2])
+		msg += 'select ' + ';'.join(delta[2])
 	if delta[0]:
 		msg += 'add new software ' + ';'.join(delta[0])
 		
@@ -107,6 +107,7 @@ def update():
 	users = request.json['users']
 	softwares = request.json['softwares']
 	delta = softwareService.saveAllSoftwares(users, softwares, session['username'])
+	print(delta)
 	logDelta(session['username'], delta)
 	sendEmail(session['username'], delta)
 	return jsonify({'status':'ok'});	
