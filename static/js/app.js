@@ -1,29 +1,67 @@
-angular.module('softwareRequestApp', []) 
-.controller("MainCtrl", ["$scope", "softwareService", 
-    function($scope, softwareService){ 
-		$scope.currentPage = 0; $scope.pageSize = 10;
+angular.module('softwareRequestApp', ['ui.bootstrap']) 
+.controller("MainCtrl", ["$scope", "$uibModal", "softwareService", "modalService",
+    function($scope, $uibModal, softwareService, modalService){ 
+		$scope.currentPage = 0; $scope.pageSize = 3;
 		$scope.allUsers = [];
 		$scope.softwares = [];
 		$scope.numberOfPages= 0;
-        
-		var currentUser = '';
+        $scope.alert = null;
+		$scope.admin = false;
+		
+		var currentUser = 'carol';
 		loadRemoteData();
 
 		$scope.addSoftware = function() {
-			addSoftware_imp($scope.newSoftware);
+			var modalOptions = {
+				closeButtonText: 'Cancel',
+				actionButtonText: 'Add',
+				headerText: 'Add software?',
+				bodyText: 'Are you sure you want to add "' + $scope.newSoftware.name +'"?'
+			};
+			
+			modalService.showModal({}, modalOptions).then(function (result) {
+				try{
+					$scope.alert = null;
+					addSoftware_imp($scope.newSoftware);
+				}
+				catch(err) {
+					$scope.alert = {type: 'danger', msg: err};
+				}
+			});
 		};  
 
+		$scope.closeAlert = function(index) {
+			$scope.alert = null;
+		};
+		
+		$scope.toggleUsage = function(software, index){
+			index = $scope.currentPage*($scope.pageSize-1) + index;
+			if(index != 0 && !$scope.admin)
+				return;
+			if(software.usage[index])
+				software.usage[index] = "";
+			else
+				software.usage[index] = "x";
+		};
+		
+		function addSoftware_imp(software) {
+			
+			var result = $.grep($scope.softwares, function(item){ return item.name === software.name});
+			if(result.length == 0) {
+				var usage = ['x'];
+				for(var i = 1; i < $scope.allUsers.length; ++i)
+					usage.push('');
+				if(software.notes)
+					usage[0] = software.notes;
+				$scope.softwares.push({name:software.name, usage:usage});
+			}
+			else
+				throw "[add software error]software '" + software.name + "' is already there";
+		};
+		
 		$scope.submit = function() {
 			softwareService.submit($scope.allUsers, $scope.softwares).then(
 				function(data) {alert("ok");}, function(data) {alert("fail");});
-				
-		};
-		
-		$scope.exportcsv = function() {
-			softwareService.exportcsv().then(
-				function(data) {
-					window.open(data);
-				});
 		};
 		
 		function loadRemoteData() {
@@ -62,19 +100,7 @@ angular.module('softwareRequestApp', [])
 			$scope.isLoading = false;
 		}
 		
-		function addSoftware_imp(software) {
-			var result = $.grep($scope.softwares, function(item){ return item.name === software.name});
-			if(result.length == 0) {
-				var usage = ['x'];
-				for(var i = 1; i < $scope.allUsers.length; ++i)
-					usage.push(' ');
-				if(software.notes)
-					usage[0] = software.notes;
-				$scope.softwares.push({name:software.name, usage:usage});
-			}
-			else
-				throw "add software error";
-		};
+		
 	
 	}])
 .filter('startFrom', function() {
@@ -91,6 +117,56 @@ angular.module('softwareRequestApp', [])
 			return replace;
 	}
 })
+.service('modalService', ['$uibModal',
+	function ($uibModal) {
+
+		var modalDefaults = {
+			backdrop: true,
+			keyboard: true,
+			modalFade: true,
+			templateUrl: '/static/partials/modal.html'
+		};
+
+		var modalOptions = {
+			closeButtonText: 'Close',
+			actionButtonText: 'OK',
+			headerText: 'Proceed?',
+			bodyText: 'Perform this action?'
+		};
+
+		this.showModal = function (customModalDefaults, customModalOptions) {
+			if (!customModalDefaults) customModalDefaults = {};
+			customModalDefaults.backdrop = 'static';
+			return this.show(customModalDefaults, customModalOptions);
+		};
+
+		this.show = function (customModalDefaults, customModalOptions) {
+			//Create temp objects to work with since we're in a singleton service
+			var tempModalDefaults = {};
+			var tempModalOptions = {};
+
+			//Map angular-ui modal custom defaults to modal defaults defined in service
+			angular.extend(tempModalDefaults, modalDefaults, customModalDefaults);
+
+			//Map modal.html $scope custom properties to defaults defined in service
+			angular.extend(tempModalOptions, modalOptions, customModalOptions);
+
+			if (!tempModalDefaults.controller) {
+				tempModalDefaults.controller = function ($scope, $uibModalInstance) {
+					$scope.modalOptions = tempModalOptions;
+					$scope.modalOptions.ok = function (result) {
+						$uibModalInstance.close(result);
+					};
+					$scope.modalOptions.close = function (result) {
+						$uibModalInstance.dismiss('cancel');
+					};
+				}
+			}
+
+			return $uibModal.open(tempModalDefaults).result;
+		};
+	}
+])
 .factory("softwareService", ["$http", "$q", function($http, $q){
     var handleError = function( response ) {
 		if (! angular.isObject( response.data ) ||
@@ -107,22 +183,10 @@ angular.module('softwareRequestApp', [])
 	
     return {
 
-		exportcsv : function() {
-            var request = $http({
-				method: "get",
-				url: "/software/export2",
-				cache: false,
-				headers: {
-                    'Content-Type': 'application/json'
-                }
-			});
-			return request.then(handleSuccess, handleError);
-        },
-	
         query : function() {
             var request = $http({
 				method: "get",
-				url: "/software/query",
+				url: "/query",
 				cache: false,
 				headers: {
                     'Content-Type': 'application/json'
@@ -136,7 +200,7 @@ angular.module('softwareRequestApp', [])
             var data = {users: users, softwares: softwares};
 			var request = $http({
 				method: "post",
-				url: "/software/update",
+				url: "/update",
 				params: {action: "add"},
 				data: {users: users, softwares: softwares}
 			});
@@ -146,43 +210,20 @@ angular.module('softwareRequestApp', [])
 
     };
 }])
-.directive( 'editInPlace', function() {
-    return {
-        restrict: 'E',
-        scope: { value: '=' },
-        template: '<label ng-click="edit()" ng-bind="value"></label><input ng-model="value"></input>',
-        link: function ( $scope, element, attrs ) {
-            var inputElement = angular.element( element.children()[1] );
-            element.addClass( 'edit-in-place' );
-            $scope.editing = false;
-
-              // ng-click handler to activate edit-in-place
-            $scope.edit = function () {
-                $scope.editing = true;
-
-                // We control display through a class on the directive itself. See the CSS.
-                element.addClass( 'active' );
-
-                // And we must focus the element. 
-                // `angular.element()` provides a chainable array, like jQuery so to access a native DOM function, 
-                // we have to reference the first element in the array.
-                inputElement[0].focus();
-            };
-
-            // When we leave the input, we're done editing.
-            inputElement[0].onblur = function() {
-                $scope.editing = false;
-                element.removeClass( 'active' );
-            };
-			
-			angular.element(inputElement[0]).bind("keydown keypress", function(event){
-				if(event.which === 13) {
-					$scope.editing = false;
-					element.removeClass( 'active' );
-					event.preventDefault();
-				}
-                
-			})
-        }
-    };
-});
+.directive( "mwConfirmClick", [
+	function( ) {
+		return {
+			priority: -1,
+			restrict: 'A',
+			scope: { confirmFunction: "&mwConfirmClick" },
+			link: function( scope, element, attrs ){
+				element.bind( 'click', function( e ){
+					var message = attrs.mwConfirmClickMessage ? attrs.mwConfirmClickMessage : "Are you sure?";
+					if( confirm( message ) ) {
+						scope.confirmFunction();
+					}
+				});
+			}
+		}
+	}
+]);

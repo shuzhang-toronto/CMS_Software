@@ -1,8 +1,8 @@
 <!doctype html>
 <html ng-app="softwareRequestApp">
 <head>
-	<!-- <link rel="stylesheet" type="text/css" href="static/style.css"> -->
-	<style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<style>
 		body {
 			font-family:Helvetica, Arial, sans-serif;
 			font-size:8pt;
@@ -53,35 +53,6 @@
 			background-color: darkgray;
 		}
 	
-		.edit-in-place {
-		  display: block;
-		  width=100%;
-		  height=100%;
-		  overflow:auto;
-		  min-height: 10px;
-		}
-		.edit-in-place label {
-		  cursor: pointer;
-		  display: block;
-		  width=100%;
-		  height=100%;
-		  overflow:auto;
-		  min-height: 10px;
-		  min-width: 50px;
-		}
-		
-		.edit-in-place input {
-		  display: none;
-		}
-
-		.edit-in-place.active label {
-		  display: none;
-		}
-
-		.edit-in-place.active input {
-		  display: inline-block;
-		}
-
 		#cmsnav{position:relative;display:block;height:42px;font-size:11px;font-weight:bold;background:transparent url(images/redslate_background.gif) repeat-x top left;font-family:Arial,Verdana,Helvitica,sans-serif;text-transform:uppercase; background-color: darkgray}
 		#cmsnav ul{margin:0px;padding:0;list-style-type:none;width:auto;}
 		#cmsnav ul li{display:block;float:left;margin:0 1px 0 0;font-size:20px;padding:14px 22px 0 22px;height:20px;color:grey}
@@ -89,9 +60,11 @@
 		#cmsnav ul li a:hover,#cmsnav ul li a.current{color:#fff;background:transparent url(images/redslate_backgroundOVER.gif) no-repeat top center;}
 
 	</style>
+
 	<title>Request Software</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+	<script src="/static/js/ui-bootstrap-tpls-1.3.3.js"></script>
 	<script type="text/javascript">
 		var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 	</script>
@@ -99,20 +72,16 @@
 </head>
 <body ng-controller="MainCtrl">
 	<div class="nav" id="cmsnav">
-	<ul>
-		<li>cms software subscription</li>
-		<li style="float:right"><a href="{{ url_for('logout') }}"><span>log out</span></a></li>
-	</ul>
+		<ul>
+			<li>cms software subscription</li>
+			<li style="float:right"><a href="{{ url_for('logout') }}"><span>log out</span></a></li>
+		</ul>
 	</div>
 	{% raw %}
 	<div class="add-software">
-		<form ng-submit="addSoftware()">
-			<fieldset ng-disabled="isLoading">
-			<input type="text" required placeholder="software" ng-model="newSoftware.name">
-			<input type="text" ng-hide="true" placeholder="version" ng-model="newSoftware.notes">
-			<input type="submit" value="Add">
-			<fieldset ng-disabled="{{isLoading}}">
-		</form>
+		<input type="text" required placeholder="software" ng-model="newSoftware.name">
+		<button ng-click="addSoftware()" ng-disabled="!newSoftware || !newSoftware.name">Add Software</button>
+		<uib-alert ng-hide="!alert" type="{{alert.type}}" close="closeAlert()">{{alert.msg}}</uib-alert>
 	</div>
 	<div id="bysy_indicator" ng-hide="!isLoading">
 		<img src="static/resources/indicator.gif" />
@@ -139,9 +108,9 @@
 			</thead>
 			<tr ng-repeat="s in softwares">
 			    <td>{{s.name}}</td>
-				<td><edit-in-place value="s.usage[0]"></edit-in-place></td>
-				<td ng-repeat="use in s.usage | startFrom: currentPage*(pageSize-1) + 1 | limitTo:pageSize -1 track by $index">
-					{{use | replaceEmpty : '&nbsp;'}}
+				<td><span ng-click="toggleUsage(s, 0)">{{s.usage[0] | replaceEmpty : '&nbsp;'}}</span></edit-in-place></td>
+				<td ng-click="toggleUsage(s, $index+1)" ng-repeat="use in s.usage | startFrom: currentPage*(pageSize-1) + 1 | limitTo:pageSize -1 track by $index">
+					<span ng-hide ='!use' >x</span>
 				</td>
 			</tr>
 		</table>
@@ -149,6 +118,11 @@
 	{% endraw %}
 	<div class="submit">
 		<button ng-click="submit()" ng-disabled="isLoading">Save Changes</button>
+	</div>
+	<div class="export">
+		<form method="get" action="{{ url_for('export') }}">
+			<input type="submit" name="commit" value="Export">
+		</form>
 	</div>
 </body>
 </html>
