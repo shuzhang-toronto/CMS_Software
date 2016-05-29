@@ -178,7 +178,7 @@ def getEmailsForSoftware(software):
 	
 
 def export():
-	data = getAllSoftwares('')
+	data = getSoftwaresUsage('')
 	
 	exp =[]
 	exp.append(['software'] + [u['id'] for u in data['users']])

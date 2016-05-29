@@ -186,7 +186,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
         query : function() {
             var request = $http({
 				method: "get",
-				url: "/query",
+				url: "query",
 				cache: false,
 				headers: {
                     'Content-Type': 'application/json'
@@ -200,7 +200,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
             var data = {users: users, softwares: softwares};
 			var request = $http({
 				method: "post",
-				url: "/update",
+				url: "update",
 				params: {action: "add"},
 				data: {users: users, softwares: softwares}
 			});
