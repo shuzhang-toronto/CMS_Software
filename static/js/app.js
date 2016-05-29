@@ -35,9 +35,12 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 		};
 		
 		$scope.toggleUsage = function(software, index){
-			index = $scope.currentPage*($scope.pageSize-1) + index;
 			if(index != 0 && !$scope.admin)
 				return;
+			
+			if(index != 0)
+				index += $scope.currentPage*($scope.pageSize-1);
+			
 			if(software.usage[index])
 				software.usage[index] = "";
 			else
@@ -124,7 +127,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 			backdrop: true,
 			keyboard: true,
 			modalFade: true,
-			templateUrl: '/static/partials/modal.html'
+			templateUrl: 'static/partials/modal.html'
 		};
 
 		var modalOptions = {
