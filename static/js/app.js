@@ -1,7 +1,7 @@
 angular.module('softwareRequestApp', ['ui.bootstrap']) 
 .controller("MainCtrl", ["$scope", "$uibModal", "softwareService", "modalService",
     function($scope, $uibModal, softwareService, modalService){ 
-		$scope.currentPage = 0; $scope.pageSize = 3;
+		$scope.currentPage = 0; $scope.pageSize = 12;
 		$scope.allUsers = [];
 		$scope.softwares = [];
 		$scope.numberOfPages= 0;

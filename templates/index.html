@@ -20,21 +20,32 @@
 		}
 		
 		fieldset {
-			border: 0;
+			border: 5;
 		}
 
 		
 		table{
 			margin-left: 0px;
 			margin-right: auto;
-			font-family:Verdana;
+			;font-family:Verdana;
 			font-size:10pt;
-			margin-left: 0px
-			;margin-right: auto
+			margin-left: 0px;
+			;margin-right: auto;
+			width: 100%;
+			border-collapse: collapse;
+
+		}
+		tr,td,th {
+			padding: 1px; 
+			margin: 0px;
+			text-align: center;
+			vertical-align:top
+			border: 1px solid black;
 		}
 		th{
 			color:white; 
 			background-Color:#74828F;
+			border: 1px solid black;
 		}
 		tr {
 			color:grey;
@@ -43,17 +54,11 @@
 		TR:Nth-Child(even) {
 			Background-Color: #FEF6EB;
 		}
-		tr,td,th {
-			padding: 1px; 
-			margin: 0px;
-			text-align: center;
-			vertical-align:top
-		}
 		tr:hover {
 			background-color: darkgray;
 		}
 	
-		#cmsnav{position:relative;display:block;height:42px;font-size:11px;font-weight:bold;background:transparent url(images/redslate_background.gif) repeat-x top left;font-family:Arial,Verdana,Helvitica,sans-serif;text-transform:uppercase; background-color: darkgray}
+		#cmsnav{position:relative;display:block;height:50px;font-size:11px;font-weight:bold;background:transparent url(images/redslate_background.gif) repeat-x top left;font-family:Arial,Verdana,Helvitica,sans-serif;text-transform:uppercase; background-color: darkgray}
 		#cmsnav ul{margin:0px;padding:0;list-style-type:none;width:auto;}
 		#cmsnav ul li{display:block;float:left;margin:0 1px 0 0;font-size:20px;padding:14px 22px 0 22px;height:20px;color:grey}
 		#cmsnav ul li a{display:block;float:left;color:#FECCC3;font-size:10px;text-decoration:none;padding:14px 22px 0 22px;height:28px;}
@@ -71,10 +76,11 @@
 	<script src="static/js/app.js"> </script>
 </head>
 <body ng-controller="MainCtrl">
-	<div class="nav" id="cmsnav">
+	<div  id="cmsnav">
 		<ul>
 			<li>cms software subscription</li>
 			<li style="float:right"><a href="{{ url_for('logout') }}"><span>log out</span></a></li>
+			<li style="float:right"><a href="{{ url_for('export') }}"><span>export</span></a></li>
 		</ul>
 	</div>
 	{% raw %}
@@ -86,17 +92,17 @@
 	<div id="bysy_indicator" ng-hide="!isLoading">
 		<img src="static/resources/indicator.gif" />
 	</div>
-	<div class="main" ng-hide="isLoading">
+	<div class="main" ng-hide="isLoading" >
 		
-		<button ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
+		<button ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1" style="float:right">
 			Previous
 		</button>
 		{{currentPage+1}}/{{numberOfPages}}
-		<button ng-disabled="currentPage == numberOfPages-1" ng-click="currentPage=currentPage+1">
+		<button ng-disabled="currentPage == numberOfPages-1" ng-click="currentPage=currentPage+1" style="float:right">
 			Next
 		</button>
 
-		<table>
+		<table class="table table-bordered">
 			<thead>
 			<tr>
 				<td>Software</td>
@@ -118,11 +124,6 @@
 	{% endraw %}
 	<div class="submit">
 		<button ng-click="submit()" ng-disabled="isLoading">Save Changes</button>
-	</div>
-	<div class="export">
-		<form method="get" action="{{ url_for('export') }}">
-			<input type="submit" name="commit" value="Export">
-		</form>
 	</div>
 </body>
 </html>
