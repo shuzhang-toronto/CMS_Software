@@ -73,6 +73,8 @@ def getSoftwaresForUser(userid):
 	with open(path, 'r') as csvfile: 
 		reader = csv.reader(csvfile, delimiter=',',quotechar='|') 
 		for row in reader:
+			if len(row) == 0:
+				continue
 			if len(row) > 1:
 				notes = row[1].strip()
 			else:
@@ -108,6 +110,8 @@ def getSoftwaresUsage(currentuser):
 				softwares = list(reader)
 			
 			for software in softwares:
+				if len(software) == 0:
+					continue
 				if len(software) > 1:
 					notes = software[1]
 				else:
@@ -117,7 +121,12 @@ def getSoftwaresUsage(currentuser):
 				else:
 					allsoftwares[software[0]] = { userid:notes }
 	
-	softwares = []
+	
+	unused = getAllSoftwares()-set(allsoftwares.keys())
+	for software in unused:
+		allsoftwares[software] = {}
+	
+	softwares = []	
 	for software in allsoftwares:
 		usage = []
 		for userid in userids:
