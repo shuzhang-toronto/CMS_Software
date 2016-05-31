@@ -38,33 +38,43 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	error = None
-	if request.method == 'POST':
-		username = request.form['username']
-		allusers = softwareService.getAllUsers()
-		if username not in allusers:
-			error = "'" + username + "' is not entitled for this application"
-		else:
-			password = request.form['password']
-			kerberosname = username + '@UTORONTO.CA'
-			app.logger.info('%s %s try login', kerberosname, password)
+	if request.method == 'GET':
+		return render_template('login.html', error=error)
 	
-			try:
-				kerberos.checkPassword(kerberosname, password, '', '')
-				session['username'] = request.form['username']
-				app.logger.info('[%s] login', session['username'])
-				
-				fullname = allusers[username]["name"]
-				email = allusers[username]["email"]
-				if fullname and email:
-					return redirect(url_for('index'))
-				else:
-					return render_template('register.html', id=username, name=fullname, email=email)
-			except:
-				e = sys.exc_info()[0]
-				app.logger.info('authenticate error %s', e)
-				error = "invalid credential"
+	username = request.form['username']
+	allusers = softwareService.getAllUsers()
+	if username not in allusers:
+		error = "'" + username + "' is not entitled for this application"
+		return render_template('login.html', error=error)
+	
+	password = request.form['password']
+	kerberosname = username + '@UTORONTO.CA'
+	app.logger.info('%s try login', kerberosname)
+
+	try:
+		kerberos.checkPassword(kerberosname, password, '', '')
+		session['username'] = request.form['username']
+		app.logger.info('[%s] login', session['username'])
+	except:
+		e = sys.exc_info()[0]
+		app.logger.info('authenticate error %s', e)
+		error = "invalid credential"
+		return render_template('login.html', error=error)
 		
-	return render_template('login.html', error=error)
+	fullname = ""
+	if "name" in allusers[username]:
+		fullname = allusers[username]["name"]
+	
+	email=""
+	if "email" in allusers[username]:				
+		email = allusers[username]["email"]
+	if fullname and email:
+		return redirect(url_for('index'))
+	else:
+		return render_template('register.html', id=username, name=fullname, email=email)
+
+		
+	
 	
 @app.route('/logout')
 def logout():
