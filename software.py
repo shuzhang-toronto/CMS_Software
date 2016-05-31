@@ -21,12 +21,18 @@ def index():
 
 @app.route('/register', methods=['POST'])
 def register():
+	print("GAGAGA")
 	if not 'username' in session:
 		return redirect(url_for('login'))
-	
-	fullname = request.form['fullname']
-	email = request.form['email']
-	#softwareService.updateUser(session['username'], fullname, email)
+	if 'fullnmae' in request.form:
+		fullname = request.form['fullname']
+	else:
+		fullname = ""
+	if 'email' in request.form:
+		email = request.form['email']
+	else:
+		email = ""
+	softwareService.updateUser(session['username'], fullname, email)
 	return redirect(url_for('index'))
 	
 @app.route('/login', methods=['GET', 'POST'])
@@ -43,7 +49,7 @@ def login():
 			app.logger.info('%s %s try login', kerberosname, password)
 	
 			try:
-#				kerberos.checkPassword(kerberosname, password, '', '')
+				kerberos.checkPassword(kerberosname, password, '', '')
 				session['username'] = request.form['username']
 				app.logger.info('[%s] login', session['username'])
 				
@@ -69,10 +75,14 @@ def logout():
 	
 @app.route('/query')
 def query():
+	if not 'username' in session:
+		return 'Not Authorized'
 	return jsonify(softwareService.getSoftwaresUsage(session['username']))
 
 @app.route('/export')
 def export():
+	if not 'username' in session:
+		return 'Not Authorized'
 	path = softwareService.export()
 	return send_file(path,
                      mimetype='text/csv',
@@ -104,6 +114,8 @@ def sendEmail(user, delta):
 	
 @app.route('/update', methods=['POST'])
 def update():
+	if not 'username' in session:
+		return 'Not Authorized'
 	users = request.json['users']
 	softwares = request.json['softwares']
 	delta = softwareService.saveAllSoftwares(users, softwares, session['username'])

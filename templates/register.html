@@ -219,6 +219,26 @@ input[type=submit]:active {
   line-height: 34px;
 }
 </style>
+<script>
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
+function validateForm(){
+	var form = document.forms["myForm"]
+	if(form.fullname !== undefined) {
+		if(form.fullname.value == null || form.fullname.value == "")
+			return false;
+	}
+	if(form.email !== undefined) {
+		if(form.email.value == null || form.email.value == "")
+			return false;
+		return 	validateEmail(form.email.value);
+	}
+	return true;
+}
+</script>
 </head>
 <body>
 	<section class="container">
@@ -229,7 +249,7 @@ input[type=submit]:active {
 			{% else %}
 				<p class=welcome><strong>Welcome {{ id }}</strong> 
 			{% endif %}
-			<form method="post" action="{{ url_for('register') }}">
+			<form name="myForm" method="post" onsubmit="return validateForm()" action="{{ url_for('register') }}">
 				{% if not name %}
 					<p>Please enter your full name</p>
 					<p><input type="text" name="fullname" value="" placeholder="full name"></p>

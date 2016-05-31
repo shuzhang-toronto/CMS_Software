@@ -78,33 +78,9 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 		function applyRemoteData( data ) {
 			$scope.allUsers = data['users'];
 			$scope.softwares = data['softwares'];
-			// for(var i = 0; i < data['users'].length; ++i)
-			// {
-				// if(data['users'][i].id === currentUser)
-					// $scope.allUsers.unshift(data['users'][i]);
-				// else
-					// $scope.allUsers.push(data['users'][i]);
-			// }
-			// $scope.softwares = [];
-			// for(var i = 0; i < data['softwares'].length; ++i){
-				// var s = data['softwares'][i];
-				// var usage = [];
-				// for(var j = 0; j < $scope.allUsers.length; ++j) {
-					// if($scope.allUsers[j].id in s.usage) {
-						// usage[j] = s.usage[$scope.allUsers[j].id];
-					// }
-					// else {
-						// usage[j] = false;
-					// }
-				// }
-				// $scope.softwares.push({name:s.name, usage:usage});
-			// }
 			$scope.numberOfPages = Math.ceil(($scope.allUsers.length - 1)/($scope.pageSize -1)); 
 			$scope.isLoading = false;
 		}
-		
-		
-	
 	}])
 .filter('startFrom', function() {
 	return function(input, start) {

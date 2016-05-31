@@ -54,7 +54,7 @@ def updateUser(id, name, email):
 			
 			with open("config/users.csv", 'w') as csvfile: 
 				writer = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-				write.writerows(users)
+				writer.writerows(users)
 			lock.close()
 			remove('config/userdilelock')
 			return
