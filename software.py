@@ -4,7 +4,7 @@ import json
 import sys
 import logging
 import time
-#import kerberos
+import kerberos
 from logging.handlers import RotatingFileHandler
 from flask import Flask, session, jsonify, g, redirect, request, render_template, url_for, send_file
 
