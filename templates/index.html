@@ -31,7 +31,6 @@
 			font-size:10pt;
 			margin-left: 0px;
 			;margin-right: auto;
-			width: 100%;
 			border-collapse: collapse;
 
 		}
@@ -78,12 +77,16 @@
 <body ng-controller="MainCtrl">
 	<div  id="cmsnav">
 		<ul>
-			<li>cms software subscription</li>
+			<li>cms software registration</li>
 			<li style="float:right"><a href="{{ url_for('logout') }}"><span>log out</span></a></li>
 			<li style="float:right"><a href="{{ url_for('export') }}"><span>export</span></a></li>
 		</ul>
 	</div>
 	{% raw %}
+	<div>
+		<br>
+      		<p class="text-left">Click the software under your name to register a software. If the software is not on the list, you could add the software. Please remember to save your change before logout</p>
+    </div>
 	<div class="add-software">
 		<input type="text" required placeholder="software" ng-model="newSoftware.name">
 		<button ng-click="addSoftware()" ng-disabled="!newSoftware || !newSoftware.name">Add Software</button>
@@ -94,12 +97,12 @@
 	</div>
 	<div class="main" ng-hide="isLoading" >
 		
-		<button ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1" style="float:right">
-			Previous
-		</button>
-		{{currentPage+1}}/{{numberOfPages}}
 		<button ng-disabled="currentPage == numberOfPages-1" ng-click="currentPage=currentPage+1" style="float:right">
 			Next
+		</button>
+		<span style="float:right">{{currentPage+1}}/{{numberOfPages}}</span>
+		<button ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1" style="float:right">
+			Previous
 		</button>
 
 		<table class="table table-bordered">
