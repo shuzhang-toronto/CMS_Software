@@ -7,6 +7,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 		$scope.numberOfPages= 0;
         $scope.alert = null;
 		$scope.admin = false;
+		$scope.isModified = false;
 		
 		var currentUser = 'carol';
 		loadRemoteData();
@@ -23,6 +24,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 				try{
 					$scope.alert = null;
 					addSoftware_imp($scope.newSoftware);
+					$scope.isModified = true;
 				}
 				catch(err) {
 					$scope.alert = {type: 'danger', msg: err};
@@ -32,6 +34,23 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 
 		$scope.closeAlert = function(index) {
 			$scope.alert = null;
+		};
+		
+		$scope.logout = function() {
+			if($scope.isModified == true) {
+				var modalOptions = {
+					closeButtonText: 'Cancel',
+					actionButtonText: 'Log out',
+					headerText: 'Unsaved changes?',
+					bodyText: 'You have some unsaved changes, are you sure you want to logout?'
+				};
+				modalService.showModal({}, modalOptions).then(function (result) {
+					window.location.assign('/logout');
+				});
+			}
+			else {
+				window.location.assign('/logout');
+			}
 		};
 		
 		$scope.toggleUsage = function(software, index){
@@ -45,6 +64,8 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 				software.usage[index] = "";
 			else
 				software.usage[index] = "x";
+		
+			$scope.isModified = true;
 		};
 		
 		function addSoftware_imp(software) {
@@ -64,7 +85,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 		
 		$scope.submit = function() {
 			softwareService.submit($scope.allUsers, $scope.softwares).then(
-				function(data) {alert("ok");}, function(data) {alert("fail");});
+				function(data) { $scope.isModified = false; alert("ok");}, function(data) {alert("fail");});
 		};
 		
 		function loadRemoteData() {
@@ -80,6 +101,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 			$scope.softwares = data['softwares'];
 			$scope.numberOfPages = Math.ceil(($scope.allUsers.length - 1)/($scope.pageSize -1)); 
 			$scope.isLoading = false;
+			$scope.isModified = false;
 		}
 	}])
 .filter('startFrom', function() {
