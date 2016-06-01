@@ -17,6 +17,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 				closeButtonText: 'Cancel',
 				actionButtonText: 'Add',
 				headerText: 'Add software?',
+				size:'sm',
 				bodyText: 'Are you sure you want to add "' + $scope.newSoftware.name +'"?'
 			};
 			
@@ -42,6 +43,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 					closeButtonText: 'Cancel',
 					actionButtonText: 'Log out',
 					headerText: 'Unsaved changes?',
+					size:'sm',
 					bodyText: 'You have some unsaved changes, are you sure you want to logout?'
 				};
 				modalService.showModal({}, modalOptions).then(function (result) {
@@ -68,6 +70,19 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 			$scope.isModified = true;
 		};
 		
+		function compare(a,b) {
+			na = a.name.toUpperCase();
+			nb = b.name.toUpperCase();
+			if (na < nb)
+				return -1;
+			else if (na > nb)
+				return 1;
+			else 
+				return 0;
+		}
+
+
+		
 		function addSoftware_imp(software) {
 			
 			var result = $.grep($scope.softwares, function(item){ return item.name === software.name});
@@ -78,6 +93,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 				if(software.notes)
 					usage[0] = software.notes;
 				$scope.softwares.push({name:software.name, usage:usage});
+				$scope.softwares.sort(compare)
 			}
 			else
 				throw "[add software error]software '" + software.name + "' is already there";
@@ -98,7 +114,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 		
 		function applyRemoteData( data ) {
 			$scope.allUsers = data['users'];
-			$scope.softwares = data['softwares'];
+			$scope.softwares = data['softwares'].sort(compare);
 			$scope.numberOfPages = Math.ceil(($scope.allUsers.length - 1)/($scope.pageSize -1)); 
 			$scope.isLoading = false;
 			$scope.isModified = false;
