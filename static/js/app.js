@@ -64,7 +64,7 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 		
 		$scope.submit = function() {
 			softwareService.submit($scope.allUsers, $scope.softwares).then(
-				function(data) {alert("ok");}, function(data) {alert("fail");});
+				function(data) {alert("change   saved");}, function(data) {alert("fail");});
 		};
 		
 		function loadRemoteData() {
