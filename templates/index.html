@@ -78,7 +78,7 @@
 	<div  id="cmsnav">
 		<ul>
 			<li>cms software registration</li>
-			<li style="float:right"><a href="{{ url_for('logout') }}"><span>log out</span></a></li>
+			<li style="float:right"><a ng-click="logout()"><span>log out</span></a></li>
 			<li style="float:right"><a href="{{ url_for('export') }}"><span>export</span></a></li>
 		</ul>
 	</div>
@@ -120,7 +120,7 @@
 			</thead>
 			<tr ng-repeat="s in softwares">
 			    <td>{{s.name}}</td>
-				<td><span ng-click="toggleUsage(s, 0)">{{s.usage[0] | replaceEmpty : '&nbsp;'}}</span></edit-in-place></td>
+				<td><span style="height:100%; width:100%; display:block;overflow:auto" ng-click="toggleUsage(s, 0)">{{s.usage[0] | replaceEmpty : '&nbsp;'}}</span></td>
 				<td ng-click="toggleUsage(s, $index+1)" ng-repeat="use in s.usage | startFrom: currentPage*(pageSize-1) + 1 | limitTo:pageSize -1 track by $index">
 					<span ng-hide ='!use' >x</span>
 				</td>
