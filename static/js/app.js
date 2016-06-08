@@ -47,11 +47,11 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 					bodyText: 'You have some unsaved changes, are you sure you want to logout?'
 				};
 				modalService.showModal({}, modalOptions).then(function (result) {
-					window.location.assign('/logout');
+					window.location.assign('logout');
 				});
 			}
 			else {
-				window.location.assign('/logout');
+				window.location.assign('logout');
 			}
 		};
 		
@@ -167,7 +167,8 @@ angular.module('softwareRequestApp', ['ui.bootstrap'])
 
 			//Map modal.html $scope custom properties to defaults defined in service
 			angular.extend(tempModalOptions, modalOptions, customModalOptions);
-
+			tempModalDefaults.size='sm';
+			
 			if (!tempModalDefaults.controller) {
 				tempModalDefaults.controller = function ($scope, $uibModalInstance) {
 					$scope.modalOptions = tempModalOptions;
